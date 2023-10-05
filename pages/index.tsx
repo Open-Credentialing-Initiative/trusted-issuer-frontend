@@ -1,14 +1,27 @@
-import {ConnectButton} from '@rainbow-me/rainbowkit';
 import type {NextPage} from 'next';
 import Head from 'next/head';
 import {useAutoConnect} from "../hooks/useAutoConnect";
 import {useAccount} from "wagmi";
 import {Navigation} from "../components/Navigation";
-import {TrustedIssuerTable} from "../components/TrustedIssuerTable";
-import {Button} from "../components/Buttton";
+import {columns, CredentialType, TrustedIssuer} from "../components/trusted-issuers-table/columns";
+import {DataTable} from "../components/trusted-issuers-table/data-table";
 
 const Home: NextPage = () => {
   const {address} = useAccount();
+  const data: TrustedIssuer[] =  [
+    {
+      did: "did:ethr:0x967fced2cb1aFb5f973816d2d643fE910B05df84",
+      credentialType: CredentialType.DSCSAATPCredential
+    },
+    {
+      did: "did:ethr:0xBc9B246690b4d11ab1747eA0af6F753430D53fbF",
+      credentialType: CredentialType.DSCSAATPCredential
+    },
+    {
+      did: "did:ethr:0xBc9B246690b4d11ab1747eA0af6F753430D53fbF",
+      credentialType: CredentialType.IdentityCredential
+    },
+  ]
 
   useAutoConnect();
 
@@ -22,7 +35,7 @@ const Home: NextPage = () => {
         />
         <link href="/favicon.ico" rel="icon"/>
       </Head>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navigation/>
         <div className="mx-auto max-w-6xl px-2 py-10">
           <header>
@@ -33,13 +46,10 @@ const Home: NextPage = () => {
                   Manage the list of trusted issuers for your OCI ecosystem.
                 </p>
               </div>
-              <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <Button text="Add Trusted Issuer"/>
-              </div>
             </div>
           </header>
           <main className="mt-5">
-            <TrustedIssuerTable/>
+            <DataTable columns={columns} data={data} />
           </main>
         </div>
       </div>
