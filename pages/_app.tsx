@@ -1,53 +1,50 @@
 import '../styles/globals.css';
 import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import type { AppProps } from 'next/app';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import {
-  arbitrum,
-  goerli,
-  mainnet,
-  optimism,
-  polygon,
-  base,
-  zora,
-} from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+import {connectorsForWallets, darkTheme, getDefaultWallets, RainbowKitProvider} from '@rainbow-me/rainbowkit';
+import type {AppProps} from 'next/app';
+import {configureChains, Connector, createConfig, WagmiConfig} from 'wagmi';
+import {goerli, mainnet,} from 'wagmi/chains';
+import {publicProvider} from 'wagmi/providers/public';
+import {SafeConnector} from 'wagmi/connectors/safe';
+import {ledgerWallet} from "@rainbow-me/rainbowkit/wallets";
 
-const { chains, publicClient, webSocketPublicClient } = configureChains(
+const {chains, publicClient, webSocketPublicClient} = configureChains(
   [
     mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    zora,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
+    goerli
   ],
   [publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'My RainbowKit App',
+  projectId: "projectId",
   chains,
 });
 
+const safeConnector = new SafeConnector({
+  chains,
+  options: {
+    allowedDomains: [/app.safe.global$/],
+    debug: false,
+  },
+})
+
 const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
+  autoConnect: false,
+  connectors: [...connectors(), safeConnector],
   publicClient,
   webSocketPublicClient,
 });
 
-function MyApp({ Component, pageProps }: AppProps) {
+function App({Component, pageProps}: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
+      <RainbowKitProvider chains={chains} >
         <Component {...pageProps} />
       </RainbowKitProvider>
     </WagmiConfig>
   );
 }
 
-export default MyApp;
+export default App;
