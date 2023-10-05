@@ -1,5 +1,5 @@
 {
-  "name": "next-trusted-issuer-dapp",
+  "name": "trusted-issuer-dapp",
   "private": true,
   "version": "0.1.0",
   "scripts": {
