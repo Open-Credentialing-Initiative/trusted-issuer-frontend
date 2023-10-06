@@ -1,23 +1,18 @@
 import {
-  ColumnDef, ColumnFiltersState,
+  ColumnDef,
+  ColumnFiltersState,
   flexRender,
-  getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table"
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "../../components/ui/table"
 import {useState} from "react";
 import {Input} from "../ui/input";
 import {Button} from "../ui/button";
-import {TooltipProvider} from "@radix-ui/react-tooltip";
-import {Tooltip, TooltipContent, TooltipTrigger} from "../ui/tooltip";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -58,16 +53,7 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm shadow-sm"
         />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button className="shadow-sm">Add Trusted Issuer</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Propose Statekeepers to add a trusted DID.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button className="shadow-sm">Add Trusted Issuer</Button>
       </div>
       <div className="rounded-md border shadow-sm">
         <Table>

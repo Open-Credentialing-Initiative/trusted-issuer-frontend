@@ -1,29 +1,57 @@
 import type {NextPage} from 'next';
 import Head from 'next/head';
 import {useAutoConnect} from "../hooks/useAutoConnect";
-import {useAccount} from "wagmi";
 import {Navigation} from "../components/Navigation";
 import {columns, CredentialType, TrustedIssuer} from "../components/trusted-issuers-table/columns";
 import {DataTable} from "../components/trusted-issuers-table/data-table";
+import {useHintEvents} from "../hooks/useEvents";
+import {useContractReads} from "wagmi";
+import {TRUSTED_HINT_ABI} from "../lib/abi";
+import {encodePacked, fromHex, keccak256} from "viem";
+
+// TODO: Put consts into env
+// TODO: Handle undefined provider in window
+
+const ATP_LIST_HASH = "0xe35c2140155d7ab105ff242d32e532f2c9ae8597e9bc54107de56cd99f607551";
+const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5d308146fcaeaa4a1de1ff";
 
 const Home: NextPage = () => {
-  const {address} = useAccount();
-  const data: TrustedIssuer[] =  [
-    {
-      did: "did:ethr:0x967fced2cb1aFb5f973816d2d643fE910B05df84",
-      credentialType: CredentialType.DSCSAATPCredential
-    },
-    {
-      did: "did:ethr:0xBc9B246690b4d11ab1747eA0af6F753430D53fbF",
-      credentialType: CredentialType.DSCSAATPCredential
-    },
-    {
-      did: "did:ethr:0xBc9B246690b4d11ab1747eA0af6F753430D53fbF",
-      credentialType: CredentialType.IdentityCredential
-    },
-  ]
-
   useAutoConnect();
+
+  const logs = useHintEvents("0xBc9B246690b4d11ab1747eA0af6F753430D53fbF");
+  const { data: metadata} = useContractReads({
+    contracts: logs.map((log: any) => {
+      return {
+        address: '0xcD0af81Ff9fBa3D2626B8441bD6696E91d2301AF',
+        abi: TRUSTED_HINT_ABI as any, // TODO: Types
+        functionName: 'metadata',
+        args: [
+          keccak256(
+            encodePacked(
+              ["address", "bytes32", "bytes32", "bytes32"],
+              [
+                log.args.namespace,
+                log.args.list,
+                log.args.key,
+                log.args.value,
+              ]
+            )
+          )
+        ]
+      }
+    }),
+  });
+
+  // TODO: Types
+  // TODO: Filter for value 0x1
+  const issuers: TrustedIssuer[] = metadata?.map((x: any, idx) => {
+    const decoded = fromHex(x.result, 'string').split(',');
+    return {
+      did: decoded[0],
+      name: decoded[1],
+      credentialType: (logs[idx] as any).args.list === ATP_LIST_HASH ? CredentialType.DSCSAATPCredential : CredentialType.IdentityCredential
+    }
+  }) ?? [];
 
   return (
     <>
@@ -49,7 +77,7 @@ const Home: NextPage = () => {
             </div>
           </header>
           <main className="mt-5">
-            <DataTable columns={columns} data={data} />
+            <DataTable columns={columns} data={issuers}/>
           </main>
         </div>
       </div>
