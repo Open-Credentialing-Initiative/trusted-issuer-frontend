@@ -1,16 +1,55 @@
-import {ConnectButton} from '@rainbow-me/rainbowkit';
 import type {NextPage} from 'next';
 import Head from 'next/head';
 import {useAutoConnect} from "../hooks/useAutoConnect";
-import {useAccount} from "wagmi";
 import {Navigation} from "../components/Navigation";
-import {TrustedIssuerTable} from "../components/TrustedIssuerTable";
-import {Button} from "../components/Buttton";
+import {columns, CredentialType, TrustedIssuer} from "../components/trusted-issuers-table/columns";
+import {DataTable} from "../components/trusted-issuers-table/data-table";
+import {useHintEvents} from "../hooks/useEvents";
+import {useContractReads} from "wagmi";
+import {TRUSTED_HINT_ABI} from "../lib/abi";
+import {encodePacked, fromHex, keccak256} from "viem";
+
+// TODO: Handle undefined provider in window
+
+export const ATP_LIST_HASH = "0xe35c2140155d7ab105ff242d32e532f2c9ae8597e9bc54107de56cd99f607551";
+export const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5d308146fcaeaa4a1de1ff";
 
 const Home: NextPage = () => {
-  const {address} = useAccount();
-
   useAutoConnect();
+
+  const logs = useHintEvents(process.env.NEXT_PUBLIC_SAFE_ADDRESS as `0x${string}`);
+  const { data: metadata} = useContractReads({
+    contracts: logs.map((log: any) => {
+      return {
+        address: process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as `0x${string}`,
+        abi: TRUSTED_HINT_ABI as any, // TODO: Types
+        functionName: 'metadata',
+        args: [
+          keccak256(
+            encodePacked(
+              ["address", "bytes32", "bytes32", "bytes32"],
+              [
+                log.args.namespace,
+                log.args.list,
+                log.args.key,
+                log.args.value,
+              ]
+            )
+          )
+        ]
+      }
+    }),
+  });
+
+  // TODO: Types
+  const issuers: TrustedIssuer[] = metadata?.map((x: any, idx) => {
+    const decoded = fromHex(x.result, 'string').split(',');
+    return {
+      did: decoded[0],
+      name: decoded[1],
+      credentialType: (logs[idx] as any).args.list === ATP_LIST_HASH ? CredentialType.DSCSAATPCredential : CredentialType.IdentityCredential
+    }
+  }) ?? [];
 
   return (
     <>
@@ -22,7 +61,7 @@ const Home: NextPage = () => {
         />
         <link href="/favicon.ico" rel="icon"/>
       </Head>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navigation/>
         <div className="mx-auto max-w-6xl px-2 py-10">
           <header>
@@ -33,13 +72,10 @@ const Home: NextPage = () => {
                   Manage the list of trusted issuers for your OCI ecosystem.
                 </p>
               </div>
-              <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <Button text="Add Trusted Issuer"/>
-              </div>
             </div>
           </header>
           <main className="mt-5">
-            <TrustedIssuerTable/>
+            <DataTable columns={columns} data={issuers}/>
           </main>
         </div>
       </div>
