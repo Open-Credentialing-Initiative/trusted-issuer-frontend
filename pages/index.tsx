@@ -9,20 +9,19 @@ import {useContractReads} from "wagmi";
 import {TRUSTED_HINT_ABI} from "../lib/abi";
 import {encodePacked, fromHex, keccak256} from "viem";
 
-// TODO: Put consts into env
 // TODO: Handle undefined provider in window
 
-const ATP_LIST_HASH = "0xe35c2140155d7ab105ff242d32e532f2c9ae8597e9bc54107de56cd99f607551";
-const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5d308146fcaeaa4a1de1ff";
+export const ATP_LIST_HASH = "0xe35c2140155d7ab105ff242d32e532f2c9ae8597e9bc54107de56cd99f607551";
+export const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5d308146fcaeaa4a1de1ff";
 
 const Home: NextPage = () => {
   useAutoConnect();
 
-  const logs = useHintEvents("0xBc9B246690b4d11ab1747eA0af6F753430D53fbF");
+  const logs = useHintEvents(process.env.NEXT_PUBLIC_SAFE_ADDRESS as `0x${string}`);
   const { data: metadata} = useContractReads({
     contracts: logs.map((log: any) => {
       return {
-        address: '0xcD0af81Ff9fBa3D2626B8441bD6696E91d2301AF',
+        address: process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as `0x${string}`,
         abi: TRUSTED_HINT_ABI as any, // TODO: Types
         functionName: 'metadata',
         args: [
@@ -43,7 +42,6 @@ const Home: NextPage = () => {
   });
 
   // TODO: Types
-  // TODO: Filter for value 0x1
   const issuers: TrustedIssuer[] = metadata?.map((x: any, idx) => {
     const decoded = fromHex(x.result, 'string').split(',');
     return {

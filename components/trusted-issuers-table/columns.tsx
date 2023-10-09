@@ -1,9 +1,14 @@
-import {ColumnDef} from "@tanstack/react-table"
-import {ArrowUpDown} from "lucide-react"
+"use client"
 
+import {ColumnDef, Row} from "@tanstack/react-table"
+import {ArrowUpDown} from "lucide-react"
 import {Button} from "../../components/ui/button"
 import {TooltipProvider} from "@radix-ui/react-tooltip"
 import {Tooltip, TooltipContent, TooltipTrigger} from "../ui/tooltip";
+import {useContractWrite} from "wagmi";
+import {TRUSTED_HINT_ABI} from "../../lib/abi";
+import {ATP_LIST_HASH, IDENTITY_LIST_HASH} from "../../pages";
+import {keccak256, stringToHex} from "viem";
 
 export enum CredentialType {
   DSCSAATPCredential = "DSCSAATPCredential",
@@ -64,20 +69,42 @@ export const columns: ColumnDef<TrustedIssuer>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const trustedIssuer = row.original
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <span className="font-normal hover:underline">Delete</span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Propose Statekeepers to remove this trusted DID.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )
-    },
+    cell: ({ row }) =>  DeleteCell(row),
   },
 ]
+
+function DeleteCell(row: Row<TrustedIssuer>) {
+  const trustedIssuer = row.original
+
+  const { write: removeIssuer } = useContractWrite({
+    address: process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as `0x${string}`,
+    abi: TRUSTED_HINT_ABI,
+    functionName: 'setHint'
+  })
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <span
+            className="font-normal hover:underline"
+            onClick={() => removeIssuer?.({
+              args: [
+                process.env.NEXT_PUBLIC_SAFE_ADDRESS as `0x${string}`,
+                trustedIssuer.credentialType === CredentialType.DSCSAATPCredential ? ATP_LIST_HASH : IDENTITY_LIST_HASH,
+                keccak256(stringToHex(trustedIssuer.did)),
+                "0x0000000000000000000000000000000000000000000000000000000000000000"
+              ],
+              value: 0n
+            })}
+          >
+            Delete
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Propose Statekeepers to remove this trusted DID.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
