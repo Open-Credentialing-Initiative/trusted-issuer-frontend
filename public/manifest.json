@@ -2,7 +2,7 @@
   "short_name": "OCI Trusted Issuer List",
   "name": "OCI Trusted Issuer List",
   "description": "Describe your Safe App here",
-  "iconPath": "logo192.svg",
+  "iconPath": "logo192.png",
   "safe_apps_permissions": [],
   "icons": [
     {
@@ -11,7 +11,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logo192-rounded.png",
       "type": "image/png",
       "sizes": "192x192"
     }

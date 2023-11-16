@@ -1,55 +1,12 @@
 import type {NextPage} from 'next';
 import Head from 'next/head';
-import {useAutoConnect} from "../hooks/useAutoConnect";
 import {Navigation} from "../components/Navigation";
-import {columns, CredentialType, TrustedIssuer} from "../components/trusted-issuers-table/columns";
-import {DataTable} from "../components/trusted-issuers-table/data-table";
-import {useHintEvents} from "../hooks/useEvents";
-import {useContractReads} from "wagmi";
-import {TRUSTED_HINT_ABI} from "../lib/abi";
-import {encodePacked, fromHex, keccak256} from "viem";
-
-// TODO: Handle undefined provider in window
-
-export const ATP_LIST_HASH = "0xe35c2140155d7ab105ff242d32e532f2c9ae8597e9bc54107de56cd99f607551";
-export const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5d308146fcaeaa4a1de1ff";
+import {TrustedIssuerTable} from "../components/tables/issuers/TrustedIssuerTable";
+import {useAutoConnect} from "../hooks/useAutoConnect";
 
 const Home: NextPage = () => {
+  // Auto-connect to the Safe wallet provider
   useAutoConnect();
-
-  const logs = useHintEvents(process.env.NEXT_PUBLIC_SAFE_ADDRESS as `0x${string}`);
-  const { data: metadata} = useContractReads({
-    contracts: logs.map((log: any) => {
-      return {
-        address: process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as `0x${string}`,
-        abi: TRUSTED_HINT_ABI as any, // TODO: Types
-        functionName: 'metadata',
-        args: [
-          keccak256(
-            encodePacked(
-              ["address", "bytes32", "bytes32", "bytes32"],
-              [
-                log.args.namespace,
-                log.args.list,
-                log.args.key,
-                log.args.value,
-              ]
-            )
-          )
-        ]
-      }
-    }),
-  });
-
-  // TODO: Types
-  const issuers: TrustedIssuer[] = metadata?.map((x: any, idx) => {
-    const decoded = fromHex(x.result, 'string').split(',');
-    return {
-      did: decoded[0],
-      name: decoded[1],
-      credentialType: (logs[idx] as any).args.list === ATP_LIST_HASH ? CredentialType.DSCSAATPCredential : CredentialType.IdentityCredential
-    }
-  }) ?? [];
 
   return (
     <>
@@ -75,7 +32,7 @@ const Home: NextPage = () => {
             </div>
           </header>
           <main className="mt-5">
-            <DataTable columns={columns} data={issuers}/>
+            <TrustedIssuerTable/>
           </main>
         </div>
       </div>

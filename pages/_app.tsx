@@ -1,24 +1,24 @@
 import '../styles/globals.css';
 import '@rainbow-me/rainbowkit/styles.css';
-import {darkTheme, getDefaultWallets, lightTheme, RainbowKitProvider} from '@rainbow-me/rainbowkit';
+import {getDefaultWallets, lightTheme, RainbowKitProvider} from '@rainbow-me/rainbowkit';
 import type {AppProps} from 'next/app';
-import {configureChains, createConfig, WagmiConfig} from 'wagmi';
-import {goerli, mainnet,} from 'wagmi/chains';
-import {publicProvider} from 'wagmi/providers/public';
+import {configureChains, createConfig, sepolia, WagmiConfig} from 'wagmi';
 import {SafeConnector} from 'wagmi/connectors/safe';
+import {infuraProvider} from "wagmi/providers/infura";
+import {publicProvider} from "wagmi/providers/public";
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
+  [sepolia],
   [
-    mainnet,
-    goerli
-  ],
-  [publicProvider()]
+    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY ?? ''}),
+    publicProvider(),
+  ]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'My RainbowKit App',
-  projectId: "projectId",
-  chains,
+  appName: 'OCI Trusted Issuers',
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID ?? '',
+  chains
 });
 
 const safeConnector = new SafeConnector({
@@ -26,12 +26,12 @@ const safeConnector = new SafeConnector({
   options: {
     allowedDomains: [/app.safe.global$/],
     debug: false,
-  },
+  }
 })
 
 const wagmiConfig = createConfig({
   autoConnect: false,
-  connectors: [...connectors(), safeConnector],
+  connectors: [safeConnector, ...connectors()],
   publicClient,
   webSocketPublicClient,
 });
