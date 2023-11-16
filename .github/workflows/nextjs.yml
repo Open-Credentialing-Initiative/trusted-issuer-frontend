@@ -54,10 +54,11 @@ jobs:
         run: pnpm install
 
       - name: Build with Next.js
-        env:
-          NEXT_PUBLIC_INFURA_API_KEY: ${{ secrets.NEXT_PUBLIC_INFURA_API_KEY }}
-          NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID }}
-        run: pnpm run build
+        run: |
+          touch .env.local
+          echo NEXT_PUBLIC_INFURA_API_KEY=${{ secrets.NEXT_PUBLIC_INFURA_API_KEY }} >> .env.local
+          echo NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID }} >> .env.local
+          pnpm run build
 
       - name: Static HTML export with Next.js
         run: pnpm run export
