@@ -9,17 +9,17 @@ import {useAccount} from "wagmi";
 const environments = [
   {
     value: Environment.STK_INT,
-    label: "STK-INT (Goerli)",
+    label: "STK-INT (Sepolia)",
     enabled: true
   },
   {
     value: Environment.WLT_INT,
-    label: "WLT-INT (Goerli)",
+    label: "WLT-INT (Sepolia)",
     enabled: true
   },
   {
     value:Environment.PBL_INT,
-    label: "PBL-INT (Goerli)",
+    label: "PBL-INT (Sepolia)",
     enabled: false
   },
   {

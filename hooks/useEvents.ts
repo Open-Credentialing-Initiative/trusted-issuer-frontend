@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Address, createPublicClient, custom, http, parseAbiItem} from "viem";
-import {goerli} from "wagmi/chains";
+import {sepolia} from "wagmi";
 
 export type HintPath = {
   namespace: `0x${string}`;
@@ -27,9 +27,9 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
     setIsError(false);
     try {
       const client = createPublicClient({
-        chain: goerli,
+        chain: sepolia,
         // @ts-ignore
-        transport: window?.ethereum ? custom(window?.ethereum) : http('https://goerli.infura.io/v3/08172298975c488d9692525adb98d347'),
+        transport: window?.ethereum ? custom(window?.ethereum) : http(`https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`),
       })
 
       // Get all events for the given namespace where a hint was added or updated
