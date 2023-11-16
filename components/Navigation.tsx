@@ -13,7 +13,7 @@ export function Navigation() {
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
-              <img className="block h-10 w-auto" src="/oci-full.png" alt="OCI logo"/>
+              <img className="block h-10 w-auto" src="oci-full.png" alt="OCI logo"/>
             </div>
           </div>
           <div className="ml-6 flex items-center">
