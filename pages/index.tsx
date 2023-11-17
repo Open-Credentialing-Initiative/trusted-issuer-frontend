@@ -3,6 +3,7 @@ import Head from 'next/head';
 import {Navigation} from "../components/Navigation";
 import {TrustedIssuerTable} from "../components/tables/issuers/TrustedIssuerTable";
 import {useAutoConnect} from "../hooks/useAutoConnect";
+import DeveloperInfo from '../components/DeveloperInfo';
 
 const Home: NextPage = () => {
   // Auto-connect to the Safe wallet provider
@@ -18,24 +19,40 @@ const Home: NextPage = () => {
         />
         <link href="favicon.ico" rel="icon"/>
       </Head>
-      <div className="min-h-screen bg-white">
-        <Navigation/>
-        <div className="mx-auto max-w-6xl px-2 py-10">
-          <header>
-            <div className="sm:flex sm:items-center">
-              <div className="sm:flex-auto">
-                <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-800">Trusted Issuers</h1>
-                <p className="mt-2 text-sm text-gray-700">
-                  Manage the list of trusted issuers for your OCI ecosystem.
-                </p>
+      <div className="flex flex-col min-h-screen bg-white">
+        <div className="flex-grow">
+          <Navigation/>
+          <div className="mx-auto max-w-6xl px-2 py-10">
+            <header>
+              <div className="sm:flex sm:items-center">
+                <div className="sm:flex-auto">
+                  <div className="flex">
+                    <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-800">Trusted Issuers</h1>
+                    <div className="pb-1 pl-1">
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-700">
+                    Manage the list of trusted issuers for your OCI ecosystem.
+                  </p>
+                </div>
               </div>
-            </div>
-          </header>
-          <main className="mt-5">
-            <TrustedIssuerTable/>
-          </main>
+            </header>
+            <main className="mt-5">
+              <TrustedIssuerTable/>
+            </main>
+          </div>
         </div>
+        <footer>
+          <div className="flex justify-center mb-6 gap-2 text-sm text-gray-400">
+            <DeveloperInfo/>
+            |
+            <a className="text-gray-400 hover:text-gray-500" href="https://www.spherity.com/imprint" target="_blank">
+              Imprint
+            </a>
+          </div>
+        </footer>
       </div>
+
     </>
   );
 };
