@@ -48,7 +48,7 @@ export default function DeveloperInfo() {
       <DialogTrigger>
         <span className="text-gray-400 hover:text-gray-500">Developer Info</span>
       </DialogTrigger>
-      <DialogContent className="max-h-screen mt-10 sm:mt-0 pb-28 sm:pb-0 overflow-auto">
+      <DialogContent className="max-h-screen sm:max-h-[700px] mt-10 sm:mt-0 pb-28 sm:pb-0 overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Developer Info</DialogTitle>
           <DialogDescription>
@@ -62,7 +62,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>ATP Credential Hint List</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={ATP_LIST_HASH} disabled />
+              <Input type="text" value={ATP_LIST_HASH} />
               <Button className="w-28" onClick={() => handleCopy(ATP_LIST_HASH, 'atpListHash')}>
                 {buttonTexts.atpListHash}
               </Button>
@@ -71,7 +71,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Identity Credential List</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={IDENTITY_LIST_HASH} disabled />
+              <Input type="text" value={IDENTITY_LIST_HASH}  />
               <Button className="w-28" onClick={() => handleCopy(IDENTITY_LIST_HASH, 'idListHash')}>
                 {buttonTexts.idListHash}
               </Button>
@@ -85,7 +85,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Contract Address</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={STK_INT_REGISTRY_ADDRESS} disabled />
+              <Input type="text" value={STK_INT_REGISTRY_ADDRESS}  />
               <Button className="w-28" onClick={() => handleCopy(STK_INT_REGISTRY_ADDRESS, 'stkIntContract')}>
                 {buttonTexts.stkIntContract}
               </Button>
@@ -94,7 +94,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Namespace</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={STK_INT_SAFE_ADDRESS} disabled />
+              <Input type="text" value={STK_INT_SAFE_ADDRESS}  />
               <Button className="w-28" onClick={() => handleCopy(STK_INT_SAFE_ADDRESS, 'stkIntNamespace')}>
                 {buttonTexts.stkIntNamespace}
               </Button>
@@ -108,7 +108,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Contract Address</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={WLT_INT_REGISTRY_ADDRESS} disabled />
+              <Input type="text" value={WLT_INT_REGISTRY_ADDRESS}  />
               <Button className="w-28" onClick={() => handleCopy(WLT_INT_REGISTRY_ADDRESS, 'wltIntContract')}>
                 {buttonTexts.wltIntContract}
               </Button>
@@ -117,7 +117,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Namespace</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={WLT_INT_SAFE_ADDRESS} disabled />
+              <Input type="text" value={WLT_INT_SAFE_ADDRESS}  />
               <Button className="w-28" onClick={() => handleCopy(WLT_INT_SAFE_ADDRESS, 'wltIntNamespace')}>
                 {buttonTexts.wltIntNamespace}
               </Button>
@@ -131,7 +131,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Contract Address</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" placeholder={PBL_INT_REGISTRY_ADDRESS} disabled />
+              <Input type="text" value={PBL_INT_REGISTRY_ADDRESS}  />
               <Button className="w-28" onClick={() => handleCopy(PBL_INT_REGISTRY_ADDRESS, 'pblIntContract')}>
                 {buttonTexts.pblIntContract}
               </Button>
@@ -142,7 +142,7 @@ export default function DeveloperInfo() {
             { connector?.id === "metaMask" && address
               ?
               <div className="flex content-between space-x-2">
-                <Input type="text" placeholder={address} disabled />
+                <Input type="text" value={address}  />
                 <Button className="w-28" onClick={() => handleCopy(address, 'pblIntNamespace')}>
                   {buttonTexts.pblIntNamespace}
                 </Button>
