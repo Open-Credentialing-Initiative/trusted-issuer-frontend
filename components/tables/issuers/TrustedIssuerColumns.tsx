@@ -16,7 +16,7 @@ export type TrustedIssuer = {
   credentialType: CredentialType
 }
 
-export const TrustedIssuerColumns = (environment: Environment): ColumnDef<TrustedIssuer>[] => [
+export const TrustedIssuerColumns = (environment: Environment, refetch: () => void): ColumnDef<TrustedIssuer>[] => [
   {
     accessorKey: "did",
     header: ({ column }) => {
@@ -64,6 +64,6 @@ export const TrustedIssuerColumns = (environment: Environment): ColumnDef<Truste
   },
   {
     id: "actions",
-    cell: ({ row }) =>  RemoveIssuerButton(row, environment),
+    cell: ({ row }) =>  RemoveIssuerButton(row, environment, refetch),
   },
 ]

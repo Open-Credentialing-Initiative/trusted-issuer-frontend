@@ -49,7 +49,7 @@ export default function EnvironmentSelector({ setEnvironment, environment }: Env
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-52 justify-between"
+          className="w-full md:w-52 justify-between"
         >
           { environment
             ? environments.find((e) => e.value === environment)?.label

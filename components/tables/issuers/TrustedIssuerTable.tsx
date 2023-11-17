@@ -78,6 +78,7 @@ export function TrustedIssuerTable() {
 
   return (
     <TrustedIssuerDetailsTable
+      address={address ?? "0x0"}
       logs={logs}
       // useContractReads does not seem to retain the type of the contract calls
       // wagmi maintainer itself recommends to just cast the type -> cast metadata to correct type
@@ -96,6 +97,7 @@ type Metadata = {
 }
 
 type TrustedIssuerDetailsTableProps = {
+  address: Address,
   logs: HintPath[]
   metadata: Metadata[],
   environment: Environment,
@@ -103,7 +105,7 @@ type TrustedIssuerDetailsTableProps = {
   refetch: () => void
 }
 
-function TrustedIssuerDetailsTable({logs, metadata, environment, setEnvironment, refetch}: TrustedIssuerDetailsTableProps) {
+function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnvironment, refetch}: TrustedIssuerDetailsTableProps) {
   const [issuers, setIssuers] = useState<TrustedIssuer[]>([]);
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -134,7 +136,7 @@ function TrustedIssuerDetailsTable({logs, metadata, environment, setEnvironment,
     }));
   }, [environment, metadata, logs]);
 
-  const columns = TrustedIssuerColumns(environment);
+  const columns = TrustedIssuerColumns(environment, refetch);
   const table = useReactTable({
     data: issuers,
     columns: columns,
@@ -151,11 +153,17 @@ function TrustedIssuerDetailsTable({logs, metadata, environment, setEnvironment,
 
   return (
     <>
-      <div className="flex justify-between items-center py-4">
+      <div className="flex-row sm:flex justify-between items-center py-4 space-y-2 sm:space-y-0">
         <DIDFilter table={table}/>
         <div className="flex space-x-2">
-          {connector?.id !== "safe" && <EnvironmentSelector environment={environment} setEnvironment={setEnvironment}/>}
-          {(connector?.id === "safe" || connector?.id === "metaMask" && environment === Environment.PBL_INT) && <AddIssuerForm environment={environment} refetch={refetch}/>}
+          { connector?.id !== "safe" && <EnvironmentSelector environment={environment} setEnvironment={setEnvironment}/> }
+          {
+            ( connector?.id === "safe"
+              || (!!connector?.id && environment === Environment.PBL_INT)
+              || address === getAddress(environment, AddressType.SAFE, address)
+            ) &&
+            <AddIssuerForm environment={environment} refetch={refetch}/>
+          }
         </div>
       </div>
       <RawTable table={table} columns={columns}/>

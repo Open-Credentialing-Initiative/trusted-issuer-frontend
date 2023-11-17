@@ -62,10 +62,11 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
     ],
     // @ts-ignore
     value: 0n,
+    gas: 0n,
     enabled: !!didValue || !!nameValue || !!credentialTypeValue
   })
   const { data, write: addIssuer,  } = useContractWrite(configAddIssuer)
-  const { data: txData, isLoading, isError, isSuccess } = useWaitForTransaction({ hash: data?.hash })
+  const { isLoading, isSuccess } = useWaitForTransaction({ hash: data?.hash })
 
   if (isSuccess) {
     refetch()
@@ -75,8 +76,8 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
     <Sheet>
       <SheetTrigger asChild>
         <Button
-          className="shadow-sm"
-          disabled={isLoading}
+          className="shadow-sm w-full md:w-auto"
+          disabled={ isLoading }
         >
           { isLoading ? "Adding..." : "Add Trusted Issuer" }
         </Button>
