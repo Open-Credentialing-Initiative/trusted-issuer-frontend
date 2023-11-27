@@ -52,7 +52,8 @@ export default function DeveloperInfo() {
         <DialogHeader>
           <DialogTitle className="text-xl">Developer Info</DialogTitle>
           <DialogDescription>
-            Trusted issuers can be retrieved with the following information.
+            Trusted issuers can be retrieved with the following information. Keep in mind that the copy button does not
+            work on safe.global, as apps are injected as iframes. Please copy the information manually.
           </DialogDescription>
         </DialogHeader>
         <hr className="mt-4 mb-4"/>
@@ -149,9 +150,9 @@ export default function DeveloperInfo() {
               </div>
               :
               <span className="text-red-500 font-mono">
-                      MetaMask not connected. Writing can only be done to the namespace of the connected blockchain
-                      account.
-                    </span>
+                MetaMask not connected. Writing can only be done to the namespace of the connected blockchain account
+                on the PBL-INT environment.
+              </span>
             }
           </div>
         </div>

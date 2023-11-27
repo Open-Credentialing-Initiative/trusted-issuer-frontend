@@ -62,7 +62,6 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
     ],
     // @ts-ignore
     value: 0n,
-    gas: 0n,
     enabled: !!didValue || !!nameValue || !!credentialTypeValue
   })
   const { data, write: addIssuer,  } = useContractWrite(configAddIssuer)
