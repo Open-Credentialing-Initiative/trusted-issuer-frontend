@@ -10,7 +10,7 @@ import {
   STK_INT_SAFE_ADDRESS,
   WLT_INT_REGISTRY_ADDRESS, WLT_INT_SAFE_ADDRESS
 } from "../lib/utils";
-import {useAccount} from "wagmi"; // Assume ANOTHER_CONST is another constant you want to use
+import {useAccount} from "wagmi";
 
 type ButtonTextsState = Record<string, string>;
 const copyButtonKeys: string[] = ['atpListHash', 'idListHash', 'stkIntContract', 'stkIntNamespace', 'wltIntContract', 'wltIntNamespace', 'pblIntContract', 'pblIntNamespace'];
@@ -46,9 +46,9 @@ export default function DeveloperInfo() {
   return (
     <Dialog>
       <DialogTrigger>
-        <span className="text-gray-400 hover:text-gray-500">Developer Info</span>
+        <span className="text-sm font-mono text-gray-400 hover:text-gray-500">Show Developer Info</span>
       </DialogTrigger>
-      <DialogContent className="max-h-screen sm:max-h-[700px] mt-10 sm:mt-0 pb-28 sm:pb-0 overflow-auto">
+      <DialogContent className="font-mono max-h-screen sm:max-h-[700px] mt-10 sm:mt-0 pb-28 sm:pb-0 overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Developer Info</DialogTitle>
           <DialogDescription>

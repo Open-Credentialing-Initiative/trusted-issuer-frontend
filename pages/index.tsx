@@ -43,13 +43,12 @@ const Home: NextPage = () => {
           </div>
         </div>
         <footer>
-          <div className="flex justify-center mb-6 gap-2 text-sm text-gray-400">
+          <div className="flex justify-center">
             <DeveloperInfo/>
-            |
-            <a className="text-gray-400 hover:text-gray-500" href="https://www.spherity.com/imprint" target="_blank">
-              Imprint
-            </a>
           </div>
+          <span className="flex justify-center text-sm text-gray-400 mb-4">
+            &copy; { new Date().getUTCFullYear() } Open Credentialing Initiative
+          </span>
         </footer>
       </div>
 
