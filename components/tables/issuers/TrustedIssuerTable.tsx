@@ -113,6 +113,9 @@ function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnv
   const {connector} = useAccount();
 
   useEffect(() => {
+    if (!metadata || !logs) {
+      return;
+    }
     // useContractReads does not seem to retain the type of the contract calls
     // wagmi maintainer itself recommends to just cast the type
     // https://github.com/wagmi-dev/wagmi/issues/1341
@@ -134,7 +137,7 @@ function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnv
         credentialType: logs[i].list === ATP_LIST_HASH ? CredentialType.DSCSAATPCredential : CredentialType.IdentityCredential
       }
     }));
-  }, [environment, metadata, logs]);
+  }, [address, environment, metadata, logs]);
 
   const columns = TrustedIssuerColumns(environment, refetch);
   const table = useReactTable({

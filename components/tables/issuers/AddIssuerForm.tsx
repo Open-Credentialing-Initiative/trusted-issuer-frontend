@@ -78,7 +78,7 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
           className="shadow-sm w-full md:w-auto"
           disabled={ isLoading }
         >
-          { isLoading ? "Adding..." : "Add Trusted Issuer" }
+          { isLoading ? "Adding..." : `Add Trusted Issuer (${environment.toUpperCase()})` }
         </Button>
       </SheetTrigger>
       <SheetContent>

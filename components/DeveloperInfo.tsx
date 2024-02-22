@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import {useState, useEffect} from 'react';
+import {Button} from "./ui/button";
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger} from "./ui/dialog";
+import {Input} from "./ui/input";
+import {Label} from "./ui/label";
 import {
   ATP_LIST_HASH,
   IDENTITY_LIST_HASH, PBL_INT_REGISTRY_ADDRESS,
@@ -16,32 +16,29 @@ type ButtonTextsState = Record<string, string>;
 const copyButtonKeys: string[] = ['atpListHash', 'idListHash', 'stkIntContract', 'stkIntNamespace', 'wltIntContract', 'wltIntNamespace', 'pblIntContract', 'pblIntNamespace'];
 
 export default function DeveloperInfo() {
-  const { connector, address } = useAccount();
+  const {connector, address} = useAccount();
+  const [isInIframe, setIsInIframe] = useState(false);
   const initialButtonStates = copyButtonKeys.reduce<ButtonTextsState>(
-    (acc, key) => ({ ...acc, [key]: 'Copy' }),
+    (acc, key) => ({...acc, [key]: 'Copy'}),
     {} as ButtonTextsState
   );
 
   const [buttonTexts, setButtonTexts] = useState<ButtonTextsState>(initialButtonStates);
 
-  const handleCopy = (info: string, key: string) => {
-    navigator.clipboard.writeText(info);
-    setButtonTexts(prevState => ({ ...prevState, [key]: 'Copied!' }));
-  };
-
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-    Object.keys(buttonTexts).forEach(key => {
-      const typedKey = key;
-      if (buttonTexts[typedKey] === 'Copied!') {
-        timers.push(setTimeout(() => {
-          setButtonTexts(prevState => ({ ...prevState, [typedKey]: 'Copy' }));
-        }, 1000));
-      }
-    });
-    return () => timers.forEach(timer => clearTimeout(timer));
-  }, [buttonTexts]);
+    // Check if the component is loaded inside an iframe
+    setIsInIframe(window.self !== window.top);
+  }, []);
 
+  const handleCopy = (info: string, key: string) => {
+    navigator.clipboard.writeText(info).then(() => {
+      setButtonTexts(prevState => ({...prevState, [key]: 'Copied!'}));
+      // Reset button text after 1 second
+      setTimeout(() => {
+        setButtonTexts(prevState => ({...prevState, [key]: 'Copy'}));
+      }, 1000);
+    });
+  };
 
   return (
     <Dialog>
@@ -52,8 +49,7 @@ export default function DeveloperInfo() {
         <DialogHeader>
           <DialogTitle className="text-xl">Developer Info</DialogTitle>
           <DialogDescription>
-            Trusted issuers can be retrieved with the following information. Keep in mind that the copy button does not
-            work on safe.global, as apps are injected as iframes. Please copy the information manually.
+            Trusted issuers can be retrieved with the following information.
           </DialogDescription>
         </DialogHeader>
         <hr className="mt-4 mb-4"/>
@@ -63,19 +59,23 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>ATP Credential Hint List</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={ATP_LIST_HASH} />
-              <Button className="w-28" onClick={() => handleCopy(ATP_LIST_HASH, 'atpListHash')}>
-                {buttonTexts.atpListHash}
-              </Button>
+              <Input type="text" value={ATP_LIST_HASH}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(ATP_LIST_HASH, 'atpListHash')}>
+                  {buttonTexts.atpListHash}
+                </Button>
+              }
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Identity Credential List</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={IDENTITY_LIST_HASH}  />
-              <Button className="w-28" onClick={() => handleCopy(IDENTITY_LIST_HASH, 'idListHash')}>
-                {buttonTexts.idListHash}
-              </Button>
+              <Input type="text" value={IDENTITY_LIST_HASH}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(IDENTITY_LIST_HASH, 'idListHash')}>
+                  {buttonTexts.idListHash}
+                </Button>
+              }
             </div>
           </div>
         </div>
@@ -86,19 +86,23 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Contract Address</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={STK_INT_REGISTRY_ADDRESS}  />
-              <Button className="w-28" onClick={() => handleCopy(STK_INT_REGISTRY_ADDRESS, 'stkIntContract')}>
-                {buttonTexts.stkIntContract}
-              </Button>
+              <Input type="text" value={STK_INT_REGISTRY_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(STK_INT_REGISTRY_ADDRESS, 'stkIntContract')}>
+                  {buttonTexts.stkIntContract}
+                </Button>
+              }
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Namespace</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={STK_INT_SAFE_ADDRESS}  />
-              <Button className="w-28" onClick={() => handleCopy(STK_INT_SAFE_ADDRESS, 'stkIntNamespace')}>
-                {buttonTexts.stkIntNamespace}
-              </Button>
+              <Input type="text" value={STK_INT_SAFE_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(STK_INT_SAFE_ADDRESS, 'stkIntNamespace')}>
+                  {buttonTexts.stkIntNamespace}
+                </Button>
+              }
             </div>
           </div>
         </div>
@@ -109,19 +113,23 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Contract Address</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={WLT_INT_REGISTRY_ADDRESS}  />
-              <Button className="w-28" onClick={() => handleCopy(WLT_INT_REGISTRY_ADDRESS, 'wltIntContract')}>
-                {buttonTexts.wltIntContract}
-              </Button>
+              <Input type="text" value={WLT_INT_REGISTRY_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(WLT_INT_REGISTRY_ADDRESS, 'wltIntContract')}>
+                  {buttonTexts.wltIntContract}
+                </Button>
+              }
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Namespace</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={WLT_INT_SAFE_ADDRESS}  />
-              <Button className="w-28" onClick={() => handleCopy(WLT_INT_SAFE_ADDRESS, 'wltIntNamespace')}>
-                {buttonTexts.wltIntNamespace}
-              </Button>
+              <Input type="text" value={WLT_INT_SAFE_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(WLT_INT_SAFE_ADDRESS, 'wltIntNamespace')}>
+                  {buttonTexts.wltIntNamespace}
+                </Button>
+              }
             </div>
           </div>
         </div>
@@ -132,21 +140,25 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Contract Address</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={PBL_INT_REGISTRY_ADDRESS}  />
-              <Button className="w-28" onClick={() => handleCopy(PBL_INT_REGISTRY_ADDRESS, 'pblIntContract')}>
-                {buttonTexts.pblIntContract}
-              </Button>
+              <Input type="text" value={PBL_INT_REGISTRY_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(PBL_INT_REGISTRY_ADDRESS, 'pblIntContract')}>
+                  {buttonTexts.pblIntContract}
+                </Button>
+              }
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Namespace</Label>
-            { connector?.id === "metaMask" && address
+            {connector?.id === "metaMask" && address
               ?
               <div className="flex content-between space-x-2">
-                <Input type="text" value={address}  />
-                <Button className="w-28" onClick={() => handleCopy(address, 'pblIntNamespace')}>
-                  {buttonTexts.pblIntNamespace}
-                </Button>
+                <Input type="text" value={address}/>
+                {!isInIframe &&
+                  <Button className="w-28" onClick={() => handleCopy(address, 'pblIntNamespace')}>
+                    {buttonTexts.pblIntNamespace}
+                  </Button>
+                }
               </div>
               :
               <span className="text-red-500 font-mono">
