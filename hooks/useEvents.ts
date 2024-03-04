@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Address, createPublicClient, custom, http, parseAbiItem} from "viem";
-import {sepolia} from "wagmi";
+import {mainnet, sepolia, usePublicClient} from "wagmi";
+import {PRD_REGISTRY_ADDRESS} from "../lib/utils";
 
 export type HintPath = {
   namespace: `0x${string}`;
@@ -18,6 +19,7 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
   const [events, setEvents] = useState<HintPath[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
+  const client = usePublicClient({ chainId: registryAddress === PRD_REGISTRY_ADDRESS ? 1 : 11155111})
 
   // useCallback will return a memoized version of the callback that only changes if one of the dependencies has changed.
   // the refetch function will _not_ be invoked automatically on dependency change or initial render
@@ -26,12 +28,6 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
     setIsLoading(true);
     setIsError(false);
     try {
-      const client = createPublicClient({
-        chain: sepolia,
-        // @ts-ignore
-        transport: window?.ethereum ? custom(window?.ethereum) : http(`https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`),
-      })
-
       // Get all events for the given namespace where a hint was added or updated
       const events = await client.getLogs({
         address: registryAddress,

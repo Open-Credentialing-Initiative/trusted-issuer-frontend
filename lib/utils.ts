@@ -15,11 +15,11 @@ export const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5
 export const STK_INT_REGISTRY_ADDRESS = "0x6F68c931d785eee932d29A4419B6e28081bbb597";
 export const WLT_INT_REGISTRY_ADDRESS = "0x9497Bb14906aa6D4241Adf83708891fAe6ba171C";
 export const PBL_INT_REGISTRY_ADDRESS = "0x949AEe13C99Ffd7250DaC5865659DB17744352B9";
-export const PRD_REGISTRY_ADDRESS = null;
+export const PRD_REGISTRY_ADDRESS = "0x962646c54ba9C53aA16f662F50175407681B26f3";
 
 export const STK_INT_SAFE_ADDRESS = "0xb229AC3bC15bacCe74A721a722d8098178c22353";
 export const WLT_INT_SAFE_ADDRESS = "0x6c151A6139c40966029B9ce8e7b24a4D61215921";
-export const PRD_SAFE_ADDRESS = null;
+export const PRD_SAFE_ADDRESS = "0xdB2b5db56B34d1455E52E135f01989EFC13E8Cb3";
 
 
 export enum Environment {
@@ -60,9 +60,9 @@ export function getAddress(environment: Environment, addressType: AddressType, w
     case Environment.PRD:
       switch (addressType) {
         case AddressType.REGISTRY:
-          throw new Error(`No registry address for ${environment}`);
+          return PRD_REGISTRY_ADDRESS;
         case AddressType.SAFE:
-          throw new Error(`No safe address for ${environment}`);
+          return PRD_SAFE_ADDRESS;
       }
     default:
       throw new Error(`Unknown environment: ${environment}`)
@@ -74,8 +74,8 @@ export function detectEnvironment(walletAddress: Address) {
     return Environment.STK_INT;
   } else if (walletAddress == WLT_INT_SAFE_ADDRESS) {
     return Environment.WLT_INT;
-  // } else if (walletAddress == PRD_SAFE_ADDRESS) {
-  //   return Environment.PRD;
+  } else if (walletAddress == PRD_SAFE_ADDRESS) {
+    return Environment.PRD;
   } else {
     return Environment.PBL_INT;
   }

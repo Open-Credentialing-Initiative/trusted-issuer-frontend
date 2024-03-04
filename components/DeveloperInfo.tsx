@@ -5,7 +5,7 @@ import {Input} from "./ui/input";
 import {Label} from "./ui/label";
 import {
   ATP_LIST_HASH,
-  IDENTITY_LIST_HASH, PBL_INT_REGISTRY_ADDRESS,
+  IDENTITY_LIST_HASH, PBL_INT_REGISTRY_ADDRESS, PRD_REGISTRY_ADDRESS, PRD_SAFE_ADDRESS,
   STK_INT_REGISTRY_ADDRESS,
   STK_INT_SAFE_ADDRESS,
   WLT_INT_REGISTRY_ADDRESS, WLT_INT_SAFE_ADDRESS
@@ -13,7 +13,7 @@ import {
 import {useAccount} from "wagmi";
 
 type ButtonTextsState = Record<string, string>;
-const copyButtonKeys: string[] = ['atpListHash', 'idListHash', 'stkIntContract', 'stkIntNamespace', 'wltIntContract', 'wltIntNamespace', 'pblIntContract', 'pblIntNamespace'];
+const copyButtonKeys: string[] = ['atpListHash', 'idListHash', 'prdContract', 'prdNamespace', 'stkIntContract', 'stkIntNamespace', 'wltIntContract', 'wltIntNamespace', 'pblIntContract', 'pblIntNamespace'];
 
 export default function DeveloperInfo() {
   const {connector, address} = useAccount();
@@ -74,6 +74,33 @@ export default function DeveloperInfo() {
               {!isInIframe &&
                 <Button className="w-28" onClick={() => handleCopy(IDENTITY_LIST_HASH, 'idListHash')}>
                   {buttonTexts.idListHash}
+                </Button>
+              }
+            </div>
+          </div>
+        </div>
+        <hr className="mt-4 mb-4"/>
+        <div className="space-y-2">
+          {/* PRD */}
+          <h2 className="text-lg font-medium text-black">PRD</h2>
+          <div className="flex flex-col gap-1.5">
+            <Label>Contract Address</Label>
+            <div className="flex content-between space-x-2">
+              <Input type="text" value={PRD_REGISTRY_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(PRD_REGISTRY_ADDRESS, 'prdContract')}>
+                  {buttonTexts.prdContract}
+                </Button>
+              }
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Namespace</Label>
+            <div className="flex content-between space-x-2">
+              <Input type="text" value={STK_INT_SAFE_ADDRESS}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(PRD_SAFE_ADDRESS, 'prdNamespace')}>
+                  {buttonTexts.prdNamespace}
                 </Button>
               }
             </div>

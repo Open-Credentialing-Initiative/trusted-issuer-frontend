@@ -40,20 +40,14 @@ export function TrustedIssuerTable() {
       return {
         address: registryAddress,
         abi: TRUSTED_HINT_ABI,
-        functionName: 'metadata',
+        functionName: 'getMetadata',
         args: [
-          keccak256(
-            encodePacked(
-              ["address", "bytes32", "bytes32", "bytes32"],
-              [
-                log.namespace,
-                log.list,
-                log.key,
-                log.value,
-              ]
-            )
-          )
-        ]
+          log.namespace,
+          log.list,
+          log.key,
+          log.value,
+        ],
+        chainId: selectedEnvironment === Environment.PRD ? 1 : 11155111
       }
     }),
     enabled: !eventsLoading && !eventsError

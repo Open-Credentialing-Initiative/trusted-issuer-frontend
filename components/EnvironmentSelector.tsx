@@ -25,7 +25,7 @@ const environments = [
   {
     value: Environment.PRD,
     label: "PRD (Mainnet)",
-    enabled: false
+    enabled: true
   },
 ]
 

@@ -2,13 +2,13 @@ import '../styles/globals.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import {getDefaultWallets, lightTheme, RainbowKitProvider} from '@rainbow-me/rainbowkit';
 import type {AppProps} from 'next/app';
-import {configureChains, createConfig, sepolia, WagmiConfig} from 'wagmi';
+import {configureChains, createConfig, mainnet, sepolia, WagmiConfig} from 'wagmi';
 import {SafeConnector} from 'wagmi/connectors/safe';
 import {infuraProvider} from "wagmi/providers/infura";
 import {publicProvider} from "wagmi/providers/public";
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
-  [sepolia],
+  [mainnet, sepolia],
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY ?? ''}),
     publicProvider(),

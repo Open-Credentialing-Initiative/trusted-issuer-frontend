@@ -31,11 +31,11 @@ import {keccak256, stringToHex} from "viem";
 const credentialTypes = [
   {
     value: CredentialType.DSCSAATPCredential.toLowerCase(),
-    label: CredentialType.DSCSAATPCredential + "v1.0.0",
+    label: CredentialType.DSCSAATPCredential,
   },
   {
     value: CredentialType.IdentityCredential.toLowerCase(),
-    label: CredentialType.IdentityCredential + "v1.0.0",
+    label: CredentialType.IdentityCredential,
   }
 ]
 
