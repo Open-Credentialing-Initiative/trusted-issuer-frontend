@@ -8,6 +8,11 @@ import {useAccount} from "wagmi";
 
 const environments = [
   {
+    value: Environment.PRD,
+    label: "PRD (Mainnet)",
+    enabled: true
+  },
+  {
     value: Environment.STK_INT,
     label: "STK-INT (Sepolia)",
     enabled: true
@@ -21,12 +26,7 @@ const environments = [
     value:Environment.PBL_INT,
     label: "PBL-INT (Sepolia)",
     enabled: false
-  },
-  {
-    value: Environment.PRD,
-    label: "PRD (Mainnet)",
-    enabled: true
-  },
+  }
 ]
 
 type EnvironmentSelectorProps = {

@@ -22,7 +22,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 
 export function TrustedIssuerTable() {
   const { address } = useAccount();
-  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment>(Environment.STK_INT);
+  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment>(Environment.PRD);
 
   useEffect(() => {
     if (address) {
