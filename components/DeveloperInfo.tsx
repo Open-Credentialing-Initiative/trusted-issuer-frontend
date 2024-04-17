@@ -97,7 +97,7 @@ export default function DeveloperInfo() {
           <div className="flex flex-col gap-1.5">
             <Label>Namespace</Label>
             <div className="flex content-between space-x-2">
-              <Input type="text" value={STK_INT_SAFE_ADDRESS}/>
+              <Input type="text" value={PRD_SAFE_ADDRESS}/>
               {!isInIframe &&
                 <Button className="w-28" onClick={() => handleCopy(PRD_SAFE_ADDRESS, 'prdNamespace')}>
                   {buttonTexts.prdNamespace}
