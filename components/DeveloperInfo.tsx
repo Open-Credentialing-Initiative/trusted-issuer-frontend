@@ -4,7 +4,8 @@ import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Dia
 import {Input} from "./ui/input";
 import {Label} from "./ui/label";
 import {
-  ATP_LIST_HASH,
+  ATP_EQUIVALENT_LIST_HASH,
+  ATP_LIST_HASH, AUTHORITY_LIST_HASH,
   IDENTITY_LIST_HASH, PBL_INT_REGISTRY_ADDRESS, PRD_REGISTRY_ADDRESS, PRD_SAFE_ADDRESS,
   STK_INT_REGISTRY_ADDRESS,
   STK_INT_SAFE_ADDRESS,
@@ -13,7 +14,7 @@ import {
 import {useAccount} from "wagmi";
 
 type ButtonTextsState = Record<string, string>;
-const copyButtonKeys: string[] = ['atpListHash', 'idListHash', 'prdContract', 'prdNamespace', 'stkIntContract', 'stkIntNamespace', 'wltIntContract', 'wltIntNamespace', 'pblIntContract', 'pblIntNamespace'];
+const copyButtonKeys: string[] = ['atpListHash', 'equivalentHash', 'authorityHash', 'idListHash', 'prdContract', 'prdNamespace', 'stkIntContract', 'stkIntNamespace', 'wltIntContract', 'wltIntNamespace', 'pblIntContract', 'pblIntNamespace'];
 
 export default function DeveloperInfo() {
   const {connector, address} = useAccount();
@@ -63,6 +64,28 @@ export default function DeveloperInfo() {
               {!isInIframe &&
                 <Button className="w-28" onClick={() => handleCopy(ATP_LIST_HASH, 'atpListHash')}>
                   {buttonTexts.atpListHash}
+                </Button>
+              }
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>ATP Equivalent Hint List</Label>
+            <div className="flex content-between space-x-2">
+              <Input type="text" value={ATP_EQUIVALENT_LIST_HASH}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(ATP_EQUIVALENT_LIST_HASH, 'equivalentHash')}>
+                  {buttonTexts.equivalentHash}
+                </Button>
+              }
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Authority Hint List</Label>
+            <div className="flex content-between space-x-2">
+              <Input type="text" value={AUTHORITY_LIST_HASH}/>
+              {!isInIframe &&
+                <Button className="w-28" onClick={() => handleCopy(AUTHORITY_LIST_HASH, 'authorityHash')}>
+                  {buttonTexts.authorityHash}
                 </Button>
               }
             </div>

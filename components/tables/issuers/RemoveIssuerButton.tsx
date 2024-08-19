@@ -5,15 +5,14 @@ import {TooltipProvider} from "@radix-ui/react-tooltip";
 import {Tooltip, TooltipContent, TooltipTrigger} from "../../ui/tooltip";
 import {
   AddressType,
-  ATP_LIST_HASH,
   BYTES32_FALSE,
   cn,
   Environment,
   getAddress,
-  IDENTITY_LIST_HASH
+  getCredentialTypeListHash,
 } from "../../../lib/utils";
 import {keccak256, stringToHex} from "viem";
-import {CredentialType, TrustedIssuer} from "./TrustedIssuerColumns";
+import {TrustedIssuer} from "./TrustedIssuerColumns";
 
 export function RemoveIssuerButton(row: Row<TrustedIssuer>, environment: Environment, refetch: () => void) {
   const { connector, address} = useAccount();
@@ -43,7 +42,7 @@ export function RemoveIssuerButton(row: Row<TrustedIssuer>, environment: Environ
             onClick={() => writeAllowed && removeIssuer?.({
               args: [
                 safeAddress,
-                trustedIssuer.credentialType === CredentialType.DSCSAATPCredential ? ATP_LIST_HASH : IDENTITY_LIST_HASH,
+                getCredentialTypeListHash(trustedIssuer.credentialType.toLowerCase()),
                 keccak256(stringToHex(trustedIssuer.did)),
                 BYTES32_FALSE,
               ],
