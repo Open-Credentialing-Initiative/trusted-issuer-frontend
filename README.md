@@ -28,7 +28,11 @@ Install dependencies
 pnpm i
 ```
 
-Run development server
+Setup local env and run development server
+
+```shell
+cp .env.example .env.local
+```
 
 ```shell
 pnpm dev

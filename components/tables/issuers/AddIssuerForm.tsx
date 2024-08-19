@@ -16,12 +16,11 @@ import {Check, ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandItem} from "../../ui/command";
 import {
   AddressType,
-  ATP_LIST_HASH,
   BYTES32_TRUE,
   cn,
   Environment,
   getAddress,
-  IDENTITY_LIST_HASH
+  getCredentialTypeListHash,
 } from "../../../lib/utils";
 import {CredentialType} from "./TrustedIssuerColumns";
 import {useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction} from "wagmi";
@@ -34,16 +33,24 @@ const credentialTypes = [
     label: CredentialType.DSCSAATPCredential,
   },
   {
+    value: CredentialType.DSCSAAuthorityCredential.toLowerCase(),
+    label: CredentialType.DSCSAAuthorityCredential,
+  },
+  {
+    value: CredentialType.DSCSAATPEquivalentCredential.toLowerCase(),
+    label: CredentialType.DSCSAATPEquivalentCredential,
+  },
+  {
     value: CredentialType.IdentityCredential.toLowerCase(),
     label: CredentialType.IdentityCredential,
-  }
+  },
 ]
 
 export default function AddIssuerForm({ environment, refetch }: { environment: Environment, refetch: () => void }) {
   const {address} = useAccount();
   const [didValue, setDidValue] = useState("");
   const [nameValue, setNameValue] = useState("");
-  const [credentialTypeValue, setCredentialTypeValue] = useState("");
+  const [credentialTypeValue, setCredentialTypeValue] = useState(CredentialType.IdentityCredential.toLowerCase());
   const [open, setOpen] = useState(false);
 
   const registryAddress = getAddress(environment, AddressType.REGISTRY)
@@ -55,7 +62,7 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
     functionName: 'setHint',
     args: [
       safeAddress,
-      credentialTypeValue === CredentialType.DSCSAATPCredential.toLowerCase() ? ATP_LIST_HASH : IDENTITY_LIST_HASH,
+      getCredentialTypeListHash(credentialTypeValue),
       keccak256(stringToHex(didValue)),
       BYTES32_TRUE,
       stringToHex([didValue,nameValue].join(","))
@@ -113,7 +120,7 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-center gap-4 truncate">
             <Label htmlFor="username" className="text-right">
               Type
             </Label>
@@ -123,7 +130,7 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className="col-span-3 justify-between font-normal"
+                  className="col-span-3 justify-between font-normal "
                 >
                   {credentialTypeValue
                     ? credentialTypes.find((credentialType) => credentialType.value === credentialTypeValue)?.label
@@ -131,7 +138,7 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
+              <PopoverContent className="w-[260px] p-0">
                 <Command>
                   <CommandEmpty>No credential type found.</CommandEmpty>
                   <CommandGroup>
@@ -139,7 +146,7 @@ export default function AddIssuerForm({ environment, refetch }: { environment: E
                       <CommandItem
                         key={credentialType.value}
                         onSelect={(currentValue) => {
-                          setCredentialTypeValue(currentValue === credentialTypeValue ? "" : currentValue)
+                          setCredentialTypeValue(currentValue)
                           setOpen(false)
                         }}
                       >

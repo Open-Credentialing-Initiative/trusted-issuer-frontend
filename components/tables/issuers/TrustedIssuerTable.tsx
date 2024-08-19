@@ -2,8 +2,14 @@ import {useEffect, useState} from "react";
 import {useAccount, useContractReads} from "wagmi";
 import {HintPath, useHintEvents} from "../../../hooks/useEvents";
 import {TRUSTED_HINT_ABI} from "../../../lib/abi";
-import {Address, encodePacked, fromHex, keccak256} from "viem";
-import {AddressType, ATP_LIST_HASH, detectEnvironment, Environment, getAddress} from "../../../lib/utils";
+import {Address, fromHex} from "viem";
+import {
+  AddressType,
+  detectEnvironment,
+  Environment,
+  getAddress,
+  getCredentialType
+} from "../../../lib/utils";
 import {CredentialType, TrustedIssuer, TrustedIssuerColumns} from "./TrustedIssuerColumns";
 import {
   ColumnFiltersState,
@@ -128,7 +134,7 @@ function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnv
       return {
         did: decoded[0],
         name: decoded[1],
-        credentialType: logs[i].list === ATP_LIST_HASH ? CredentialType.DSCSAATPCredential : CredentialType.IdentityCredential
+        credentialType: getCredentialType(logs[i].list)
       }
     }));
   }, [address, environment, metadata, logs]);

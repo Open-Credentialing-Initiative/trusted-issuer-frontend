@@ -6,6 +6,8 @@ import {Environment} from "../../../lib/utils";
 
 export enum CredentialType {
   DSCSAATPCredential = "DSCSAATPCredential",
+  DSCSAATPEquivalentCredential = "DSCSAATPEquivalentCredential",
+  DSCSAAuthorityCredential = "DSCSAAuthorityCredential",
   IdentityCredential = "IdentityCredential",
   Unknown = "Unknown",
 }

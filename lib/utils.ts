@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {Address} from "viem";
+import {CredentialType} from "../components/tables/issuers/TrustedIssuerColumns";
  
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -11,6 +12,8 @@ export const BYTES32_TRUE = "0x1000000000000000000000000000000000000000000000000
 
 export const ATP_LIST_HASH = "0xe35c2140155d7ab105ff242d32e532f2c9ae8597e9bc54107de56cd99f607551";
 export const IDENTITY_LIST_HASH = "0x1825a61b3b384c564efb355d7aee9ef08d663bb59b5d308146fcaeaa4a1de1ff";
+export const ATP_EQUIVALENT_LIST_HASH = "0x9310d05d293d16b5570d3fdb865933a6ff2bbd5aba4f444de323db71424f5bb1";
+export const AUTHORITY_LIST_HASH = "0x97f0fd57196c90295c810db7d7f59883372e22dc605202289343a99ec8021072";
 
 export const STK_INT_REGISTRY_ADDRESS = "0x6F68c931d785eee932d29A4419B6e28081bbb597";
 export const WLT_INT_REGISTRY_ADDRESS = "0x9497Bb14906aa6D4241Adf83708891fAe6ba171C";
@@ -78,6 +81,36 @@ export function detectEnvironment(walletAddress: Address) {
     return Environment.PRD;
   } else {
     return Environment.PBL_INT;
+  }
+}
+
+export function getCredentialType(credentialTypeListHash: string): CredentialType {
+  switch (credentialTypeListHash) {
+    case ATP_LIST_HASH:
+      return CredentialType.DSCSAATPCredential;
+    case ATP_EQUIVALENT_LIST_HASH:
+      return CredentialType.DSCSAATPEquivalentCredential;
+    case AUTHORITY_LIST_HASH:
+      return CredentialType.DSCSAAuthorityCredential;
+    case IDENTITY_LIST_HASH:
+      return CredentialType.IdentityCredential;
+    default:
+      return CredentialType.Unknown;
+  }
+}
+
+export function getCredentialTypeListHash(credentialType: string): `0x${string}` {
+  switch (credentialType) {
+    case CredentialType.DSCSAATPCredential.toLowerCase():
+      return ATP_LIST_HASH;
+    case CredentialType.DSCSAATPEquivalentCredential.toLowerCase():
+      return ATP_EQUIVALENT_LIST_HASH;
+    case CredentialType.DSCSAAuthorityCredential.toLowerCase():
+      return AUTHORITY_LIST_HASH;
+    case CredentialType.IdentityCredential.toLowerCase():
+      return IDENTITY_LIST_HASH;
+    default:
+      throw new Error(`No list hash found for credential type: ${credentialType}`)
   }
 }
 
