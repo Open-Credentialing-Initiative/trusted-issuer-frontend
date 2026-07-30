@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {Address} from "viem";
 import {CredentialType} from "../components/tables/issuers/TrustedIssuerColumns";
- 
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -19,6 +19,14 @@ export const STK_INT_REGISTRY_ADDRESS = "0x6F68c931d785eee932d29A4419B6e28081bbb
 export const WLT_INT_REGISTRY_ADDRESS = "0x9497Bb14906aa6D4241Adf83708891fAe6ba171C";
 export const PBL_INT_REGISTRY_ADDRESS = "0x949AEe13C99Ffd7250DaC5865659DB17744352B9";
 export const PRD_REGISTRY_ADDRESS = "0x962646c54ba9C53aA16f662F50175407681B26f3";
+
+// Block each registry was deployed at, so log lookups don't have to scan from genesis.
+export const REGISTRY_DEPLOY_BLOCKS: Record<Address, bigint> = {
+  [STK_INT_REGISTRY_ADDRESS]: 5409263n,
+  [WLT_INT_REGISTRY_ADDRESS]: 5409274n,
+  [PBL_INT_REGISTRY_ADDRESS]: 5409297n,
+  [PRD_REGISTRY_ADDRESS]: 19357011n,
+};
 
 export const STK_INT_SAFE_ADDRESS = "0xb229AC3bC15bacCe74A721a722d8098178c22353";
 export const WLT_INT_SAFE_ADDRESS = "0x6c151A6139c40966029B9ce8e7b24a4D61215921";

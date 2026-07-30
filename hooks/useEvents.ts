@@ -1,7 +1,11 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Address, parseAbiItem} from "viem";
 import {usePublicClient} from "wagmi";
-import {PRD_REGISTRY_ADDRESS} from "../lib/utils";
+import {PRD_REGISTRY_ADDRESS, REGISTRY_DEPLOY_BLOCKS} from "../lib/utils";
+
+// Infura (and many other providers) reject eth_getLogs requests spanning more
+// than 10_000 blocks, so we have to paginate manually by chunking the range.
+const MAX_BLOCK_RANGE = 10_000n;
 
 export type HintPath = {
   namespace: `0x${string}`;
@@ -46,15 +50,28 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
     setIsLoading(true);
     setIsError(false);
     try {
-      // Get all events for the given namespace where a hint was added or updated
-      const logs = await client.getLogs({
-        address: registryAddress,
-        event: HINT_VALUE_CHANGED_ABI_ITEM,
-        args: {
-          namespace,
-        },
-        fromBlock: 'earliest'
-      })
+      // Get all events for the given namespace where a hint was added or updated.
+      // The RPC provider rejects ranges over MAX_BLOCK_RANGE blocks, so fetch in chunks.
+      const latestBlock = await client.getBlockNumber();
+      const deployBlock = REGISTRY_DEPLOY_BLOCKS[registryAddress] ?? 0n;
+      const logs = [];
+      for (let fromBlock = deployBlock; fromBlock <= latestBlock; fromBlock += MAX_BLOCK_RANGE) {
+        const toBlock = fromBlock + MAX_BLOCK_RANGE - 1n > latestBlock
+          ? latestBlock
+          : fromBlock + MAX_BLOCK_RANGE - 1n;
+
+        const chunkLogs = await client.getLogs({
+          address: registryAddress,
+          event: HINT_VALUE_CHANGED_ABI_ITEM,
+          args: {
+            namespace,
+          },
+          fromBlock,
+          toBlock,
+        });
+
+        logs.push(...chunkLogs);
+      }
 
       // Map the logs to HintPath objects
       const events = logs.map((log) => ({
