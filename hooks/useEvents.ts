@@ -1,11 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Address, parseAbiItem} from "viem";
+import {Address, PublicClient, parseAbiItem} from "viem";
 import {usePublicClient} from "wagmi";
 import {PRD_REGISTRY_ADDRESS, REGISTRY_DEPLOY_BLOCKS} from "../lib/utils";
-
-// Infura (and many other providers) reject eth_getLogs requests spanning more
-// than 10_000 blocks, so we have to paginate manually by chunking the range.
-const MAX_BLOCK_RANGE = 10_000n;
 
 export type HintPath = {
   namespace: `0x${string}`;
@@ -16,6 +12,50 @@ export type HintPath = {
 
 const DELETE_FLAG = "0x0000000000000000000000000000000000000000000000000000000000000000"
 const HINT_VALUE_CHANGED_ABI_ITEM = parseAbiItem('event HintValueChanged(address indexed namespace, bytes32 indexed list, bytes32 indexed key, bytes32 value)');
+
+type HintValueChangedLog = {
+  args: {
+    namespace?: `0x${string}`;
+    list?: `0x${string}`;
+    key?: `0x${string}`;
+    value?: `0x${string}`;
+  };
+};
+
+// The RPC provider rejects once a query would return more than ~10,000 results (or takes too long to run).
+// Since we can't know the result count up front, fetch optimistically and, if the
+// provider rejects the request, split the range in half and retry each half.
+async function getHintValueChangedLogsInRange(
+  client: PublicClient,
+  registryAddress: Address,
+  namespace: Address,
+  fromBlock: bigint,
+  toBlock: bigint
+): Promise<HintValueChangedLog[]> {
+  try {
+    return await client.getLogs({
+      address: registryAddress,
+      event: HINT_VALUE_CHANGED_ABI_ITEM,
+      args: {
+        namespace,
+      },
+      fromBlock,
+      toBlock,
+    });
+  } catch (e) {
+    if (fromBlock >= toBlock) {
+      throw e;
+    }
+
+    const midBlock = fromBlock + (toBlock - fromBlock) / 2n;
+    const [lowerLogs, upperLogs] = await Promise.all([
+      getHintValueChangedLogsInRange(client, registryAddress, namespace, fromBlock, midBlock),
+      getHintValueChangedLogsInRange(client, registryAddress, namespace, midBlock + 1n, toBlock),
+    ]);
+
+    return [...lowerLogs, ...upperLogs];
+  }
+}
 
 // Function to filter out removed hints from the events array
 const filterRemovedHints = (events: HintPath[]) => {
@@ -50,28 +90,10 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
     setIsLoading(true);
     setIsError(false);
     try {
-      // Get all events for the given namespace where a hint was added or updated.
-      // The RPC provider rejects ranges over MAX_BLOCK_RANGE blocks, so fetch in chunks.
+      // Get all events for the given namespace where a hint was added or updated
       const latestBlock = await client.getBlockNumber();
       const deployBlock = REGISTRY_DEPLOY_BLOCKS[registryAddress] ?? 0n;
-      const logs = [];
-      for (let fromBlock = deployBlock; fromBlock <= latestBlock; fromBlock += MAX_BLOCK_RANGE) {
-        const toBlock = fromBlock + MAX_BLOCK_RANGE - 1n > latestBlock
-          ? latestBlock
-          : fromBlock + MAX_BLOCK_RANGE - 1n;
-
-        const chunkLogs = await client.getLogs({
-          address: registryAddress,
-          event: HINT_VALUE_CHANGED_ABI_ITEM,
-          args: {
-            namespace,
-          },
-          fromBlock,
-          toBlock,
-        });
-
-        logs.push(...chunkLogs);
-      }
+      const logs = await getHintValueChangedLogsInRange(client, registryAddress, namespace, deployBlock, latestBlock);
 
       // Map the logs to HintPath objects
       const events = logs.map((log) => ({
