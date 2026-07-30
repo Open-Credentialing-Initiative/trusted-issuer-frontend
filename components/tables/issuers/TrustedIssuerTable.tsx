@@ -25,6 +25,7 @@ import AddIssuerForm from "./AddIssuerForm";
 import RawTable, {LoadingTable} from "../RawTable";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css'
+import {Button} from "../../ui/button";
 
 export function TrustedIssuerTable() {
   const { address } = useAccount();
@@ -40,7 +41,7 @@ export function TrustedIssuerTable() {
   const safeAddress = getAddress(selectedEnvironment, AddressType.SAFE, address)
 
   // Get all events for active/ non-deleted hints and retrieve their metadata on the safe's namespace
-  const {events: logs, isLoading: eventsLoading, isError: eventsError, refetch} = useHintEvents({namespace: safeAddress, registryAddress});
+  const {events: logs, isLoading: eventsLoading, isLoadingMore: eventsLoadingMore, isError: eventsError, hasMore: eventsHasMore, loadMore: loadMoreEvents, refetch} = useHintEvents({namespace: safeAddress, registryAddress});
   const {data: metadata, isLoading: metadataLoading, isError: metadataError } = useContractReads({
     contracts: logs.map((log: any) => {
       return {
@@ -87,6 +88,9 @@ export function TrustedIssuerTable() {
       environment={selectedEnvironment}
       setEnvironment={setSelectedEnvironment}
       refetch={refetch}
+      hasMore={eventsHasMore}
+      isLoadingMore={eventsLoadingMore}
+      loadMore={loadMoreEvents}
     />
   )
 }
@@ -103,9 +107,12 @@ type TrustedIssuerDetailsTableProps = {
   environment: Environment,
   setEnvironment: (environment: Environment) => void,
   refetch: () => void
+  hasMore: boolean
+  isLoadingMore: boolean
+  loadMore: () => void
 }
 
-function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnvironment, refetch}: TrustedIssuerDetailsTableProps) {
+function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnvironment, refetch, hasMore, isLoadingMore, loadMore}: TrustedIssuerDetailsTableProps) {
   const [issuers, setIssuers] = useState<TrustedIssuer[]>([]);
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -170,6 +177,14 @@ function TrustedIssuerDetailsTable({address, logs, metadata, environment, setEnv
         </div>
       </div>
       <RawTable table={table} columns={columns}/>
+      {
+        hasMore &&
+        <div className="flex justify-center py-4">
+          <Button variant="outline" onClick={loadMore} disabled={isLoadingMore}>
+            {isLoadingMore ? "Loading..." : "Show more"}
+          </Button>
+        </div>
+      }
     </>
   )
 }
