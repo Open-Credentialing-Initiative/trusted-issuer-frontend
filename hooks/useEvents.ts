@@ -166,18 +166,12 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
       const deployBlock = REGISTRY_DEPLOY_BLOCKS[registryAddress] ?? 0n;
       deployBlockRef.current = deployBlock;
 
-      if (registryAddress === PRD_REGISTRY_ADDRESS) {
-        // PRD has little enough history that it fits in a single request.
-        const logs = await getHintValueChangedLogsInRange(client, registryAddress, namespace, deployBlock, latestBlock);
-        mergeBatch(logs);
-      } else {
-        // Test chains accumulate a lot of unrelated QA/integration churn, so walk
-        // backwards from the current tip and stop at the first batch with events,
-        // leaving the rest of the history to be loaded on demand via loadMore().
-        const nextWindowEnd = await walkBackwardsUntilResults(client, registryAddress, namespace, latestBlock, deployBlock, mergeBatch);
-        nextWindowEndRef.current = nextWindowEnd;
-        setHasMore(nextWindowEnd !== null);
-      }
+      // Walk backwards from the current tip and stop at the first batch with
+      // events, leaving the rest of the history to be loaded on demand via
+      // loadMore().
+      const nextWindowEnd = await walkBackwardsUntilResults(client, registryAddress, namespace, latestBlock, deployBlock, mergeBatch);
+      nextWindowEndRef.current = nextWindowEnd;
+      setHasMore(nextWindowEnd !== null);
     } catch (e) {
       setIsError(true);
     } finally {
