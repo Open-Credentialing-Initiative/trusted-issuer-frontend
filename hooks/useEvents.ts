@@ -2,6 +2,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {Address, PublicClient, parseAbiItem} from "viem";
 import {usePublicClient} from "wagmi";
 import {PRD_REGISTRY_ADDRESS, REGISTRY_DEPLOY_BLOCKS} from "../lib/utils";
+import {HINT_SNAPSHOTS} from "../lib/hint-snapshots";
 
 export type HintPath = {
   namespace: `0x${string}`;
@@ -95,6 +96,18 @@ const toHintPath = (log: HintValueChangedLog): HintPath => ({
   value: log.args.value as `0x${string}`,
 });
 
+// Snapshot logs are stored flat (not nested under `args`) since they're plain data,
+// not viem log objects. Convert them to the shape the rest of this file works with,
+// keeping only the entries for the namespace this hook was called with - a snapshot
+// covers every namespace at once so it can be reused across safes.
+const snapshotLogsToInternal = (
+  snapshotLogs: {namespace: `0x${string}`, list: `0x${string}`, key: `0x${string}`, value: `0x${string}`}[],
+  namespace: Address
+): HintValueChangedLog[] =>
+  snapshotLogs
+    .filter(log => log.namespace.toLowerCase() === namespace.toLowerCase())
+    .map(log => ({args: {namespace: log.namespace, list: log.list, key: log.key, value: log.value}}));
+
 // Walks backwards from `startWindowEnd` in fixed-size batches, invoking `onBatch`
 // with each batch's raw logs as soon as it arrives. Stops as soon as a batch
 // actually contains events (returning the next windowEnd to resume from later, so
@@ -145,11 +158,17 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
   const nextWindowEndRef = useRef<bigint | null>(null);
   const deployBlockRef = useRef<bigint>(0n);
 
-  const mergeBatch = useCallback((windowLogs: HintValueChangedLog[]) => {
-    // Prepend, since each batch we walk into is older than everything fetched so far.
-    rawLogsRef.current = [...windowLogs, ...rawLogsRef.current];
+  // Prepend older batches (from walking backwards) or append newer ones (from a
+  // snapshot's baseline, or the delta fetched since it was taken) - either way the
+  // accumulated log list has to stay in chronological order for filterRemovedHints.
+  const mergeLogs = useCallback((newLogs: HintValueChangedLog[], position: 'before' | 'after') => {
+    rawLogsRef.current = position === 'before'
+      ? [...newLogs, ...rawLogsRef.current]
+      : [...rawLogsRef.current, ...newLogs];
     setEvents(filterRemovedHints(rawLogsRef.current.map(toHintPath)));
   }, []);
+
+  const mergeOlderBatch = useCallback((windowLogs: HintValueChangedLog[]) => mergeLogs(windowLogs, 'before'), [mergeLogs]);
 
   // useCallback will return a memoized version of the callback that only changes if one of the dependencies has changed.
   // the refetch function will _not_ be invoked automatically on dependency change or initial render
@@ -166,18 +185,34 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
       const deployBlock = REGISTRY_DEPLOY_BLOCKS[registryAddress] ?? 0n;
       deployBlockRef.current = deployBlock;
 
-      // Walk backwards from the current tip and stop at the first batch with
-      // events, leaving the rest of the history to be loaded on demand via
-      // loadMore().
-      const nextWindowEnd = await walkBackwardsUntilResults(client, registryAddress, namespace, latestBlock, deployBlock, mergeBatch);
-      nextWindowEndRef.current = nextWindowEnd;
-      setHasMore(nextWindowEnd !== null);
+      const snapshot = HINT_SNAPSHOTS[registryAddress];
+      if (snapshot) {
+        // The bundled snapshot already covers deployBlock..snapshotBlock, so seed
+        // from it directly (no RPC calls at all) and only fetch the delta since it
+        // was taken - usually just a handful of blocks.
+        mergeLogs(snapshotLogsToInternal(snapshot.logs, namespace), 'after');
+
+        if (latestBlock > snapshot.snapshotBlock) {
+          const deltaLogs = await getHintValueChangedLogsInRange(client, registryAddress, namespace, snapshot.snapshotBlock + 1n, latestBlock);
+          mergeLogs(deltaLogs, 'after');
+        }
+        // The snapshot already accounts for the full history back to deployBlock -
+        // there's nothing older left to walk backwards into.
+        setHasMore(false);
+      } else {
+        // No snapshot for this registry - fall back to walking backwards from the
+        // current tip and stop at the first batch with events, leaving the rest of
+        // the history to be loaded on demand via loadMore().
+        const nextWindowEnd = await walkBackwardsUntilResults(client, registryAddress, namespace, latestBlock, deployBlock, mergeOlderBatch);
+        nextWindowEndRef.current = nextWindowEnd;
+        setHasMore(nextWindowEnd !== null);
+      }
     } catch (e) {
       setIsError(true);
     } finally {
       setIsLoading(false);
     }
-  }, [namespace, registryAddress, client, mergeBatch]);
+  }, [namespace, registryAddress, client, mergeLogs, mergeOlderBatch]);
 
   // Resumes the backwards walk from where refetch() (or the previous loadMore())
   // left off, again stopping at the next batch that actually contains events.
@@ -194,7 +229,7 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
         namespace,
         nextWindowEndRef.current,
         deployBlockRef.current,
-        mergeBatch
+        mergeOlderBatch
       );
       nextWindowEndRef.current = nextWindowEnd;
       setHasMore(nextWindowEnd !== null);
@@ -203,7 +238,7 @@ function useHintEvents({namespace, registryAddress}: {namespace: Address, regist
     } finally {
       setIsLoadingMore(false);
     }
-  }, [namespace, registryAddress, client, mergeBatch]);
+  }, [namespace, registryAddress, client, mergeOlderBatch]);
 
   // useEffect will run the refetch function on initial render and whenever the refetch function changes
   // the refetch function changes when their dependencies change which triggers a call of refetch itself via useEffect
